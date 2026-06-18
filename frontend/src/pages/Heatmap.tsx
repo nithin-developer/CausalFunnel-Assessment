@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { RefreshCcw, ChevronDown, Info, Download } from "lucide-react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 interface ClickEvent {
   y: number;
   x: number;
@@ -62,7 +64,7 @@ export default function Heatmap() {
 
   const fetchPages = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/pages");
+      const res = await axios.get(`${API_BASE}/pages`);
       setPages(res.data);
       if (res.data.length > 0) {
         setSelectedPage(res.data[0]);
@@ -75,7 +77,7 @@ export default function Heatmap() {
   const fetchClicks = async (url: string) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/heatmap?page=${encodeURIComponent(url)}`,
+        `${API_BASE}/heatmap?page=${encodeURIComponent(url)}`,
       );
       setClicks(res.data);
     } catch (error) {
