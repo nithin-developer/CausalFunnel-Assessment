@@ -1,25 +1,12 @@
-# User Analytics Application
+# CausalFunnel — User Analytics Tracker & Dashboard
 
-A full-stack application that tracks user interactions (page views & clicks) on a webpage and displays them in a premium analytics dashboard.
+A full-stack, end-to-end user analytics application built to capture, store, and visualize real-time user behavior on web properties. This project features a lightweight tracking script, a scalable backend, and a modern, high-performance React dashboard to map out user journeys and click heatmaps.
 
-Built as part of the **CausalFunnel Full Stack Engineer** assessment.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend Dashboard** | React 19 + Vite + TypeScript |
-| **Tracking Script** | Vanilla JavaScript |
-| **Backend** | Node.js + Express.js |
-| **Database** | MongoDB + Mongoose |
-| **HTTP Client** | Axios |
-| **Routing** | React Router v7 |
+Built as part of the **CausalFunnel Full Stack Engineer Assessment**.
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 ├── backend/                  # Node.js + Express API server
@@ -51,127 +38,99 @@ Built as part of the **CausalFunnel Full Stack Engineer** assessment.
 
 ---
 
-## Setup & Running
+## 🏗 Tech Stack
+
+| Layer | Technology | Description |
+|-------|-----------|-------------|
+| **Frontend Dashboard** | React 19 + Vite + TypeScript | High-performance dashboard built with Tailwind CSS (v4), Framer Motion for physics-based animations, and `shadcn/ui` for modular, accessible components. Routing handled via React Router v7. |
+| **Tracking Script** | Vanilla JavaScript | A lightweight, dependency-free script injected into client applications to monitor DOM interactions. |
+| **Backend API** | Node.js + Express.js | Fast, scalable REST API for ingesting tracking events and serving analytics data. |
+| **Database** | MongoDB + Mongoose | NoSQL database capable of high-throughput write operations for event ingestion. |
+| **HTTP Client** | Axios & Fetch API | `fetch` (with keepalive) is used in the tracker to ensure performance; Axios powers the frontend data retrieval. |
+
+---
+
+## ⚙️ How It Works (Architecture & Data Flow)
+
+The application relies on three distinct layers working in harmony:
+
+1. **Data Ingestion (The Tracker Script):**
+   - The lightweight `tracker.js` is embedded into client sites (e.g., `demo.html`).
+   - Upon initialization, it generates a unique cryptographic `session_id` using `crypto.randomUUID()` and persists it via `localStorage`. 
+   - A basic heuristic utilizing the `navigator.userAgent` determines whether the `device_type` is Mobile or Desktop.
+   - It attaches event listeners to the DOM to fire API requests on `load` (`page_view` events) and `click` (`click` events capturing X/Y coordinates, target elements, and textual content).
+   - Payloads are dispatched to the backend via `fetch` utilizing `keepalive: true`, ensuring events aren't lost if the user navigates away.
+
+2. **Data Storage & Processing (Backend):**
+   - An Express.js REST API receives the structured event payloads.
+   - The backend validates the structural integrity of the payload (`session_id`, `event_type`, `page_url`).
+   - Valid events are stored as immutable records in a MongoDB collection utilizing Mongoose.
+
+3. **Data Visualization (Frontend Dashboard):**
+   - Built on Vite & React, the dashboard queries the analytics endpoints (`/api/sessions`, `/api/heatmap`).
+   - **Sessions View**: Utilizes MongoDB `$group` aggregation pipelines to dynamically calculate total session durations, unique page interactions, and device distributions.
+   - **Heatmaps View**: Fetches precise `click_x` and `click_y` coordinate data mapped against a target URL, rendering interactive visual heatmaps (using radial-gradient logic) overlaid on webpage screenshots to discover "hot" interaction zones.
+
+---
+
+## 🛠 Setup & Installation
 
 ### Prerequisites
+- Node.js (v18+)
+- MongoDB (Local or Atlas URI)
 
-- **Node.js** v18+
-- **MongoDB** running locally on `mongodb://localhost:27017`
-
-### 1. Backend
-
+### 1. Backend Setup
 ```bash
 cd backend
 npm install
-npm run dev
 ```
+- Create a `.env` file in the `backend` directory and add your MongoDB connection string:
+  ```env
+  MONGO_URI=mongodb://localhost:27017/causalfunnel
+  PORT=5000
+  ```
+- Start the server:
+  ```bash
+  npm run dev
+  ```
 
-The API server will start at `http://localhost:5000`.
-
-### 2. Frontend Dashboard
-
+### 2. Frontend Setup
 ```bash
 cd frontend
 npm install
-npm run dev
 ```
+- The frontend proxy is configured to direct `/api` calls to `http://localhost:5000`.
+- Start the development server:
+  ```bash
+  npm run dev
+  ```
 
-The dashboard will open at `http://localhost:5173`.
-
-### 3. Demo Page (Generate Events)
-
-Open `tracker-script/demo.html` directly in your browser. Every page load and click will send events to the backend API.
-
-> **Tip:** Click around the demo page, then switch to the dashboard to see your sessions and heatmap data appear.
-
----
-
-## API Documentation
-
-### POST `/api/events` — Receive an event
-
-```json
-{
-  "session_id": "abc123",
-  "event_type": "page_view | click",
-  "page_url": "http://localhost:5173",
-  "timestamp": "2026-06-18T10:30:00.000Z",
-  "click_x": 220,
-  "click_y": 340
-}
-```
-
-### GET `/api/sessions` — List sessions with event counts
-
-Returns an array of sessions with `_id`, `total_events`, `first_event`, `last_event`.
-
-### GET `/api/session/:id` — User journey for a session
-
-Returns all events for a session, sorted by timestamp (ascending).
-
-### GET `/api/heatmap?page=<url>` — Click data for heatmap
-
-Returns click coordinates for a specific page URL.
-
-### GET `/api/pages` — List all tracked page URLs
-
-Returns an array of distinct page URLs.
+### 3. Demo Application (Tracker Target)
+- To simulate interactions and populate data, open `tracker-script/demo.html` in your browser (ideally via a Live Server extension or HTTP server).
+- Navigate, click buttons, and view products. The tracker will actively push events to the backend, which will instantly reflect in your running React Dashboard.
 
 ---
 
-## Database Schema
+## 🤔 Assumptions & Trade-Offs
 
-### Event Collection
+To maintain scope and performance for this assessment, several specific architectural choices were made:
 
-```javascript
-{
-  _id: ObjectId,
-  session_id: "abc123",         // UUID stored in localStorage
-  event_type: "click",          // "page_view" | "click"
-  page_url: "http://...",       // Full page URL
-  timestamp: Date,              // ISO timestamp
-  click_x: 220,                // Click X coordinate (null for page_view)
-  click_y: 340                 // Click Y coordinate (null for page_view)
-}
-```
+### 1. Session Identity
+- **Assumption:** `localStorage` is used to maintain a persistent `session_id`.
+- **Trade-off:** This method fails to track users across cross-domain boundaries or different browsers. If a user clears their cache or opens an Incognito window, they are treated as a completely new session. 
 
-**Indexes:**
-- `session_id` — fast session lookups
-- `{ page_url, event_type }` — fast heatmap queries
+### 2. Event Tracking Coordinates
+- **Assumption:** Click tracking utilizes `clientX` and `clientY` relative to the viewport.
+- **Trade-off:** If the user scrolls deeply into a page, rendering the heatmap against a static full-page screenshot requires careful coordinate normalization (e.g., mapping viewport clicks to total scroll heights (`pageX/pageY`) depending on how the heatmap canvas handles absolute vs relative rendering).
 
----
+### 3. Device Fingerprinting
+- **Assumption:** Device type (Mobile vs Desktop) is determined by a simplistic regular expression matched against the `navigator.userAgent`.
+- **Trade-off:** User agents can be easily spoofed, and tablet devices might fall into ambiguous categorizations.
 
-## Dashboard Features
+### 4. Asynchronous Event Delivery
+- **Assumption:** The `fetch` API using `keepalive: true` is sufficient for beaconing data before page unloads.
+- **Trade-off:** While cleaner than older methods, `navigator.sendBeacon` is arguably slightly more reliable specifically for tab-closing scenarios, but standard `fetch` allows for easier JSON header manipulation and error handling.
 
-### Sessions View
-- Overview stats: total sessions, total events, avg events/session
-- Sortable sessions table with session ID, event count, first/last seen, duration
-- Click a session → slide-over panel shows the **user journey** as an interactive timeline
-
-### Heatmap View
-- Dropdown to select a tracked page URL
-- Visual click map rendering click positions as animated dots
-- Stats: total clicks, unique sessions
-
----
-
-## Assumptions & Trade-offs
-
-- **Session ID** is stored in `localStorage` using `crypto.randomUUID()`. A new session is created per browser/device.
-- Only `page_view` and `click` events are tracked (no scroll, form, or custom events).
-- Heatmap renders clicks as positioned dots — not a density-based heatmap (kept simple per spec).
-- **No authentication** — the API is open (out of scope for this assessment).
-- Click coordinates use `clientX`/`clientY` (viewport-relative), not page-relative.
-- The tracker script is configured via `data-api` attribute for flexible endpoint targeting.
-
----
-
-## Extra Features (Beyond Base Requirements)
-
-- ✅ **Session start & end time** with duration calculation
-- ✅ **Page filter** dropdown in Heatmap view
-- ✅ **Stats overview cards** with computed metrics
-- ✅ **Slide-over panel** for user journey (not page navigation)
-- ✅ **Premium dark theme** with glassmorphism, animations, and Inter typography
-- ✅ **Demo e-commerce page** for generating real event data
-- ✅ **Responsive design** with collapsible sidebar
+### 5. Security & Authentication
+- **Assumption:** This implementation serves as an internal analytics PoC.
+- **Trade-off:** Endpoints (both ingestion and dashboard queries) do not currently enforce JWT or API Key authentication. In production, the tracker script would need CORS restrictions tightly bound to allowed origins, and dashboard APIs would be guarded by robust authentication middleware.
