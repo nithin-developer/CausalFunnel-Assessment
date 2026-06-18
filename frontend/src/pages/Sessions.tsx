@@ -9,7 +9,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Computer,
   Monitor,
   Phone,
 } from "lucide-react";

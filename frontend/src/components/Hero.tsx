@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
 // Interface for the props of each individual icon.
@@ -154,9 +154,9 @@ const FloatingIconsHero = React.forwardRef<
           {subtitle}
         </p>
         <div className="mt-10">
-          <Button asChild size="lg" className="px-8 py-6 text-base font-semibold">
-            <a href={ctaHref}>{ctaText}</a> <ArrowRight className='h-5 w-5 ml-2' />
-          </Button>
+          <a href={ctaHref} className={cn(buttonVariants({ size: "lg" }), "px-8 py-6 text-base font-semibold inline-flex items-center justify-center")}>
+            {ctaText} <ArrowRight className='h-5 w-5 ml-2' />
+          </a>
         </div>
       </div>
     </section>
