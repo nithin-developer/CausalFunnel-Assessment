@@ -73,8 +73,8 @@
       event_type: "click",
       page_url: window.location.href,
       timestamp: new Date().toISOString(),
-      click_x: e.clientX,
-      click_y: e.clientY,
+      click_x: e.pageX,
+      click_y: e.pageY,
       target_tag: targetTag,
       target_text: targetText,
     });

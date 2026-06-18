@@ -348,7 +348,7 @@ export default function Heatmap() {
           <div className="flex-1 bg-gray-50 relative overflow-auto p-4 flex justify-center">
             <div
               className="relative shadow-sm border border-gray-200 bg-white"
-              style={{ width: "100%", maxWidth: "1200px" }}
+              style={{ width: "100%", maxWidth: "1200px", containerType: "inline-size" }}
             >
               <img
                 src="/demo_screenshot.png"
@@ -360,6 +360,7 @@ export default function Heatmap() {
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
                   {clicks.map((click) => {
                     const xPercent = ((click.click_x || click.x) / 1536) * 100;
+                    const yCqi = ((click.click_y || click.y) / 1536) * 100;
 
                     return (
                       <div
@@ -367,7 +368,7 @@ export default function Heatmap() {
                         className="absolute w-16 h-16 rounded-full animate-scale-in opacity-90 shadow-2xl"
                         style={{
                           left: `calc(${xPercent}% - 32px)`,
-                          top: `calc(${click.click_y || click.y}px - 32px)`,
+                          top: `calc(${yCqi}cqi - 32px)`,
                           background:
                             "radial-gradient(circle, rgba(255,0,0,1) 0%, rgba(255,165,0,0.8) 30%, rgba(0,255,0,0.5) 50%, rgba(0,0,255,0.3) 70%, transparent 100%)",
                           filter: "blur(4px)",
