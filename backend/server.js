@@ -9,8 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
+  ? process.env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim())
   : ["http://localhost:5173", "http://localhost:3000"];
+
+console.log("Allowed Origins:", allowedOrigins);
 
 app.use(
   cors({
@@ -25,6 +27,7 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(express.json());
 
 app.use("/api", analyticsRoutes);
