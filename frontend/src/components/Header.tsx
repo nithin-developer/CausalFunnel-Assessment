@@ -8,7 +8,6 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#e5e7eb] bg-[#f8faf7]/80 backdrop-blur-md">
       <div className="flex h-16 items-center justify-between px-6 md:px-12 max-w-[1200px] mx-auto">
-        {/* Brand */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white font-bold text-xs">
             CF
@@ -22,9 +21,21 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8">
           <NavLink
             to="/"
+            className={`text-sm font-medium transition-colors hover:text-black ${
+              location.pathname === "/"
+                ? "text-black font-semibold "
+                : "text-muted-foreground"
+            }`}
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/sessions"
             end
             className={`text-sm font-medium transition-colors hover:text-black ${
-              location.pathname === "/" ? "text-black font-semibold " : "text-muted-foreground"
+              location.pathname === "/sessions"
+                ? "text-black font-semibold "
+                : "text-muted-foreground"
             }`}
           >
             Sessions
@@ -32,28 +43,34 @@ export default function Header() {
           <NavLink
             to="/heatmap"
             className={`text-sm font-medium transition-colors hover:text-black ${
-              location.pathname.startsWith("/heatmap") ? "text-black font-semibold " : "text-muted-foreground"
+              location.pathname.startsWith("/heatmap")
+                ? "text-black font-semibold "
+                : "text-muted-foreground"
             }`}
           >
             Heatmap
           </NavLink>
-          
+
           <div className="flex items-center gap-4 ml-4 border-l border-border pl-8">
-             <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-               All Websites
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="m6 9 6 6 6-6"/></svg>
-             </button>
-             <Button variant="ghost" className="font-semibold px-2 hover:bg-transparent hover:text-black/80">Sign In</Button>
-             <Button className="bg-black text-white hover:bg-black/90 font-semibold rounded-none px-6 py-4">Get Started Free</Button>
+            <Button
+              variant="ghost"
+              className="font-semibold px-2 hover:bg-transparent hover:text-black/80"
+            >
+              Sign In
+            </Button>
+            <Button className="bg-black text-white hover:bg-black/90 font-semibold rounded-none px-6 py-4">
+              Get Started Free
+            </Button>
           </div>
         </nav>
 
-        {/* Mobile Nav Toggle */}
         <div className="flex md:hidden items-center gap-4">
-           <Button className="bg-black text-white hover:bg-black/90 font-semibold rounded-none text-xs h-8 px-4">Get Started</Button>
-           <Button variant="ghost" size="icon">
-             <Menu className="w-5 h-5" />
-           </Button>
+          <Button className="bg-black text-white hover:bg-black/90 font-semibold rounded-none text-xs h-8 px-4">
+            Get Started
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Menu className="w-5 h-5" />
+          </Button>
         </div>
       </div>
     </header>

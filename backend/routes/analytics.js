@@ -96,7 +96,7 @@ router.get("/heatmap", async (req, res) => {
     const clicks = await Event.find({
       page_url: page,
       event_type: "click",
-    }).select("click_x click_y timestamp session_id");
+    }).select("click_x click_y timestamp session_id target_text target_tag");
 
     res.json(clicks);
   } catch (err) {
