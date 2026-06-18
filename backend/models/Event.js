@@ -43,7 +43,6 @@ const EventSchema = new mongoose.Schema({
   },
 });
 
-// Compound index for heatmap queries
 EventSchema.index({ page_url: 1, event_type: 1 });
 
 module.exports = mongoose.model("Event", EventSchema);

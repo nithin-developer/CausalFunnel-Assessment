@@ -10,13 +10,11 @@
 (function () {
   "use strict";
 
-  // ── Configuration ──────────────────────────────────────────────────
   const scriptTag = document.currentScript;
   const API_ENDPOINT =
     (scriptTag && scriptTag.getAttribute("data-api")) ||
     "http://localhost:5000/api/events";
 
-  // ── Session Management ─────────────────────────────────────────────
   function getSessionId() {
     let sessionId = localStorage.getItem("cf_session_id");
 
@@ -32,7 +30,6 @@
     return /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
   }
 
-  // ── Send Event to Backend ──────────────────────────────────────────
   function sendEvent(eventData) {
     eventData.device_type = getDeviceType();
     try {
@@ -51,7 +48,6 @@
     }
   }
 
-  // ── Page View Tracking ─────────────────────────────────────────────
   window.addEventListener("load", function () {
     sendEvent({
       session_id: getSessionId(),
@@ -61,14 +57,15 @@
     });
   });
 
-  // ── Click Tracking ─────────────────────────────────────────────────
   document.addEventListener("click", function (e) {
     let targetText = "";
     let targetTag = "";
-    
+
     if (e.target) {
       targetTag = e.target.tagName ? e.target.tagName.toLowerCase() : "";
-      targetText = e.target.textContent ? e.target.textContent.trim().substring(0, 100) : "";
+      targetText = e.target.textContent
+        ? e.target.textContent.trim().substring(0, 100)
+        : "";
     }
 
     sendEvent({
@@ -79,7 +76,7 @@
       click_x: e.clientX,
       click_y: e.clientY,
       target_tag: targetTag,
-      target_text: targetText
+      target_text: targetText,
     });
   });
 })();

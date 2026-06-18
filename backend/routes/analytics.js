@@ -2,11 +2,19 @@ const express = require("express");
 const router = express.Router();
 const Event = require("../models/Event");
 
-// POST /api/events — Receive and store a tracking event
 router.post("/events", async (req, res) => {
   try {
-    const { session_id, event_type, page_url, timestamp, click_x, click_y, target_tag, target_text, device_type } =
-      req.body;
+    const {
+      session_id,
+      event_type,
+      page_url,
+      timestamp,
+      click_x,
+      click_y,
+      target_tag,
+      target_text,
+      device_type,
+    } = req.body;
 
     if (!session_id || !event_type || !page_url) {
       return res.status(400).json({
@@ -35,7 +43,6 @@ router.post("/events", async (req, res) => {
   }
 });
 
-// GET /api/sessions — List all sessions with event counts and timestamps
 router.get("/sessions", async (req, res) => {
   try {
     const sessions = await Event.aggregate([
@@ -44,10 +51,10 @@ router.get("/sessions", async (req, res) => {
           _id: "$session_id",
           total_events: { $sum: 1 },
           page_views: {
-            $sum: { $cond: [{ $eq: ["$event_type", "page_view"] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$event_type", "page_view"] }, 1, 0] },
           },
           clicks: {
-            $sum: { $cond: [{ $eq: ["$event_type", "click"] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$event_type", "click"] }, 1, 0] },
           },
           unique_pages: { $addToSet: "$page_url" },
           first_event: { $min: "$timestamp" },
@@ -57,8 +64,8 @@ router.get("/sessions", async (req, res) => {
       },
       {
         $addFields: {
-          unique_page_count: { $size: "$unique_pages" }
-        }
+          unique_page_count: { $size: "$unique_pages" },
+        },
       },
       { $sort: { last_event: -1 } },
     ]);
@@ -70,7 +77,6 @@ router.get("/sessions", async (req, res) => {
   }
 });
 
-// GET /api/session/:id — Fetch all events for a specific session (user journey)
 router.get("/session/:id", async (req, res) => {
   try {
     const events = await Event.find({
@@ -84,13 +90,14 @@ router.get("/session/:id", async (req, res) => {
   }
 });
 
-// GET /api/heatmap?page=<url> — Fetch click data for a specific page
 router.get("/heatmap", async (req, res) => {
   try {
     const page = req.query.page;
 
     if (!page) {
-      return res.status(400).json({ error: "page query parameter is required" });
+      return res
+        .status(400)
+        .json({ error: "page query parameter is required" });
     }
 
     const clicks = await Event.find({
@@ -105,7 +112,6 @@ router.get("/heatmap", async (req, res) => {
   }
 });
 
-// GET /api/pages — Fetch distinct page URLs (for heatmap dropdown)
 router.get("/pages", async (req, res) => {
   try {
     const pages = await Event.distinct("page_url");

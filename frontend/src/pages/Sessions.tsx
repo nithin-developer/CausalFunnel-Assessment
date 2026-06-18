@@ -9,6 +9,9 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Computer,
+  Monitor,
+  Phone,
 } from "lucide-react";
 import {
   Sheet,
@@ -302,8 +305,12 @@ export default function Sessions() {
                 <th className="px-6 py-3 border-b border-gray-200">
                   Start Time
                 </th>
-                <th className="px-6 py-3 border-b border-gray-200 text-right">
+
+                <th className="px-6 py-3 border-b border-gray-200">
                   Duration
+                </th>
+                <th className="px-6 py-3 border-b border-gray-200 text-center ">
+                  Device Type
                 </th>
               </tr>
             </thead>
@@ -351,13 +358,22 @@ export default function Sessions() {
                             )
                           : "-"}
                       </td>
-                      <td className="px-6 py-4 text-right text-gray-900 font-medium">
+                      <td className="px-6 py-4  text-gray-900 font-medium">
                         {session.first_event && session.last_event
                           ? formatDurationStr(
                               session.first_event,
                               session.last_event,
                             )
                           : "-"}
+                      </td>
+                      <td className="px-6 py-4 flex justify-center items-center  h-full pt-6">
+                        {session.device_type === "Desktop" ? (
+                          <Monitor className="w-5 h-5 text-gray-500" />
+                        ) : session.device_type === "Mobile" ? (
+                          <Phone className="w-5 h-5 text-gray-500" />
+                        ) : (
+                          <span className="text-gray-400 text-xs" title="Unknown">-</span>
+                        )}
                       </td>
                     </tr>
                   );
